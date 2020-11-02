@@ -1,3 +1,5 @@
+" For getting vimrc working on other pcs
+" echo "runtime vimrc" > .vimrc
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -38,6 +40,9 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
+" ------------------------------------------------------------------------------------------------
+:nnoremap <leader>ev :split ~/.vim/vimrc<cr>
+:nnoremap <leader>sv :source $MYVIMRC<cr>
 " ------------------------------------------------------------------------------------------------
 " Plug in for automatically install other plugins
 " execute pathogen#infect()
