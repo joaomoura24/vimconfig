@@ -16,6 +16,8 @@ Plugin 'VundleVim/Vundle.vim'
 " plugin on GitHub repo
 " Plugin 'vim-latex/vim-latex'
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-rhubarb'
+Plugin 'mhinz/vim-signify'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-repeat'
 "" Plugin 'davidhalter/jedi-vim'
@@ -24,7 +26,10 @@ Plugin 'ycm-core/YouCompleteMe'
 Plugin 'SirVer/ultisnips'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'christoomey/vim-tmux-navigator'
+Plugin 'preservim/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'lifepillar/vim-solarized8'
+Plugin 'roxma/vim-window-resize-easy'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -41,7 +46,7 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 " ------------------------------------------------------------------------------------------------
-:nnoremap <leader>ev :split ~/.vim/vimrc<cr>
+:nnoremap <leader>ev :tabnew ~/.vim/vimrc<cr>
 :nnoremap <leader>sv :source $MYVIMRC<cr>
 " ------------------------------------------------------------------------------------------------
 " Plug in for automatically install other plugins
@@ -62,8 +67,7 @@ set splitright
 set encoding=utf-8
 " ------------------------------------------------------------------------------------------------
 " Set the numbers of the lines in the first column"
-" set number
-set relativenumber
+set number relativenumber
 " ------------------------------------------------------------------------------------------------
 " Set incremental search when using /
 set incsearch
@@ -126,15 +130,29 @@ let g:SuperTabCrMapping = 0
 let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
-nnoremap <leader>jd :YcmCompleter GoTo<CR>
+nnoremap <leader>gd :YcmCompleter GoTo<CR>
 " ------------------------------------------------------------------------------------------------
 " UtilSnipts:
 let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger='<tab>'
 let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 " ------------------------------------------------------------------------------------------------
 "  solarized8
-set background=light
 colorscheme solarized8
+" set background=light
+" ------------------------------------------------------------------------------------------------
+"  nerdtree
+" lets
+let g:NERDTreeAutoDeleteBuffer=1
+" autocmd vimenter * NERDTree
+" close nerdtree window when closing last vim window
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" open nerdtree with leader
+" nnoremap <leader>n :NERDTree<CR>
+" Open nerd tree at the current file or close nerd tree if pressed again.
+nnoremap <silent> <expr> <Leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+" ------------------------------------------------------------------------------------------------
+"  nerdtree git
+let g:NERDTreeGitStatusConcealBrackets = 1 " default: 0
+" ------------------------------------------------------------------------------------------------
