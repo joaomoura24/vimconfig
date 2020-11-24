@@ -20,16 +20,20 @@ Plugin 'tpope/vim-rhubarb'
 Plugin 'mhinz/vim-signify'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-repeat'
-"" Plugin 'davidhalter/jedi-vim'
+Plugin 'tpope/vim-commentary'
 Plugin 'ervandew/supertab'
 Plugin 'ycm-core/YouCompleteMe'
+"Plugin 'neoclide/coc.nvim'
 Plugin 'SirVer/ultisnips'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'christoomey/vim-tmux-navigator'
+Plugin 'christoomey/vim-system-copy' " for copying ang pasting from clipboard
 Plugin 'preservim/nerdtree'
 Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'lifepillar/vim-solarized8'
 Plugin 'roxma/vim-window-resize-easy'
+Plugin 'skywind3000/asyncrun.vim'
+Plugin 'unblevable/quick-scope' " highlight 1st searchable letter
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -46,6 +50,7 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 " ------------------------------------------------------------------------------------------------
+" Open and Source .vimrc
 :nnoremap <leader>ev :tabnew ~/.vim/vimrc<cr>
 :nnoremap <leader>sv :source $MYVIMRC<cr>
 " ------------------------------------------------------------------------------------------------
@@ -60,6 +65,23 @@ filetype plugin indent on    " required
 "nnoremap <C-K> <C-W><C-K>
 "nnoremap <C-L> <C-W><C-L>
 "nnoremap <C-H> <C-W><C-H>
+" ------------------------------------------------------------------------------------------------
+"  Some general configurations
+" TextEdit might fail if hidden is not set.
+set hidden
+" Some servers have issues with backup files, see #649.
+set nobackup
+set nowritebackup
+" Give more space for displaying messages.
+set cmdheight=2
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
+" Automatically change the directory to current
+set autochdir
+" ------------------------------------------------------------------------------------------------
 " More natural split opening
 set splitbelow
 set splitright
@@ -91,10 +113,22 @@ highlight NonText guifg=#4a4a59
 highlight SpecialKey guifg=#4a4a59
 " ------------------------------------------------------------------------------------------------
 " Set vim to use the Tab in auto-completion similar to bash (without this use <ctrl-d>)"
-set wildmode=longest,list
+" set wildmode=longest,list
 " ------------------------------------------------------------------------------------------------
 " Display name of the current file
 set laststatus=2
+" ------------------------------------------------------------------------------------------------
+" Close and open preview window
+function! PreviewWindowOpened()
+    for nr in range(1, winnr('$'))
+        if getwinvar(nr, "&ft") == "qf"
+            " found a preview
+            return 1
+        endif  
+    endfor
+    return 0
+endfun
+nnoremap <silent> <expr> <Leader>c g:PreviewWindowOpened() ? "\:cclose<CR>" : "\:copen<CR>"
 " ------------------------------------------------------------------------------------------------
 " Display name and path of current file
 "" set statusline+=%F
@@ -116,21 +150,29 @@ set laststatus=2
 " set iskeyword+=:
 " Change the Ctrl-j in vim-latex
 " ------------------------------------------------------------------------------------------------
-"  jedi-vim
-"" let g:jedi#use_tabs_not_buffers = 1
-"" let g:jedi#force_py_version = 3
-" let g:jedi#show_call_signatures = "2"
-" ------------------------------------------------------------------------------------------------
-" SuperTab:
+" SuperTab: (supertab)
 let g:SuperTabDefaultCompletionType = "<c-n>"
 let g:SuperTabCrMapping = 0
 " ------------------------------------------------------------------------------------------------
 " YouCompleteMe:
 " auto close the completion window
+"" fun! GoYCM()
+nnoremap <buffer> <silent> <leader>gd :YcmCompleter GoTo<CR>
+nnoremap <buffer> <silent> <leader>gr :YcmCompleter GoToReferences<CR>
+nnoremap <buffer> <silent> <leader>rr :YcmCompleter RefactorRename<space>
+nnoremap <buffer> <silent> <leader>d :YcmCompleter GetDoc<CR>
 let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
 let g:ycm_autoclose_preview_window_after_completion = 1
-nnoremap <leader>gd :YcmCompleter GoTo<CR>
+let g:ycm_autoclose_preview_window_after_insertion = 1
+"let g:ycm_add_preview_to_completeopt = 1
+"set completeopt-=preview
+"" endfun
+" ------------------------------------------------------------------------------------------------
+"  Decide autocompletion tool depending on the source file
+" autocmd Filetype typescript :call GoCoc()
+"" autocmd Filetype typescript :call GoYCM()
+"" autocmd Filetype cpp,cxx,h,hpp,c :call GoCoc()
 " ------------------------------------------------------------------------------------------------
 " UtilSnipts:
 let g:UltiSnipsExpandTrigger="<tab>"
@@ -140,19 +182,28 @@ let g:UltiSnipsEditSplit="vertical"
 " ------------------------------------------------------------------------------------------------
 "  solarized8
 colorscheme solarized8
-" set background=light
+" set background=dark
 " ------------------------------------------------------------------------------------------------
 "  nerdtree
 " lets
 let g:NERDTreeAutoDeleteBuffer=1
+" open nerdtree when opening the file
 " autocmd vimenter * NERDTree
 " close nerdtree window when closing last vim window
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-" open nerdtree with leader
-" nnoremap <leader>n :NERDTree<CR>
+" autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTre") && b:NERDTree.isTabTree()) | q | endif
 " Open nerd tree at the current file or close nerd tree if pressed again.
 nnoremap <silent> <expr> <Leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 " ------------------------------------------------------------------------------------------------
 "  nerdtree git
 let g:NERDTreeGitStatusConcealBrackets = 1 " default: 0
+" ------------------------------------------------------------------------------------------------
+"  asyncrun
+autocmd filetype python nnoremap <Leader>x :AsyncRun python3 %<CR>
+autocmd filetype cpp nnoremap <Leader>mm :AsyncRun make<CR>
+autocmd filetype cpp nnoremap <Leader>mx :AsyncRun make exec<CR>
+autocmd filetype cpp nnoremap <Leader>mc :AsyncRun make clean<CR>
+" ------------------------------------------------------------------------------------------------
+" quick-scope:
+" Trigger a highlight in the appropriate direction when pressing these keys:
+let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
 " ------------------------------------------------------------------------------------------------
